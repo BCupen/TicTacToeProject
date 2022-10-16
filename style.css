@@ -62,13 +62,14 @@ button{
 .board{
     display: grid;
     min-width: 35rem;
-    height: 80vh;
+    height: 85vh;
     grid-template-rows: 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: .5rem;
 }
 
 .space{
+    cursor: pointer;
     border-radius: 5%;
     background-color: #d1d5db;
     display: flex;
@@ -76,6 +77,10 @@ button{
     align-items: center;
     font-size: 10rem;
     font-family: 'Lato';
+}
+
+.space:hover{
+    background-color: #9ca3af;
 }
 
 .player{
