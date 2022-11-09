@@ -10,11 +10,18 @@ const displayController = (()=>{
     playPvPButton.addEventListener('click', function(e){
         menuC.style.display = 'none';
         gameC.style.display = 'flex';
-        GameBoard.startGame();
+        GameBoard.startGame(2000);
     });
 })();
 
 const GameBoard = (() =>{
+    //get modal
+    const modal = document.querySelector('.modal');
+    const modalText = document.querySelector('.modal-text');
+
+    //get board
+    const spaces  = document.querySelectorAll('.space');
+
     //get Header
     const header=  document.querySelector('.header');
 
@@ -34,8 +41,9 @@ const GameBoard = (() =>{
 
     let board = Array(9).fill('');
     let turns = 0;
+    let games = 0;
 
-    const startGame = () =>{
+    const startGame = (time) =>{
         const coinFlip = Math.floor(Math.random() * 2);
         if(coinFlip === 1){
             player2.char = 'X';
@@ -44,7 +52,7 @@ const GameBoard = (() =>{
         };
         setTimeout(function(){
             header.textContent = `${currPlayer.name}! Your turn.`;
-        }, 2000);
+        }, time);
     };
 
     const checkWin = (mark) =>{
@@ -63,9 +71,21 @@ const GameBoard = (() =>{
         return {win, combo: []};
     }
 
+    const resetBoard =  (headerMessage = 'New Round Starting') =>{
+        spaces.forEach(space => space.textContent = '');
+        header.textContent = headerMessage;
+        turns = 0;
+        board = Array(9).fill('');
+        console.log(board);
+    }
 
-    //get board
-    const spaces  = document.querySelectorAll('.space');
+    const checkGameWinner = () =>{
+        if(player1.score >=3)
+            return player1;
+        else if(player2.score >= 3)
+            return player2;
+        else return null;
+    }
 
     //get player scores
     const player1Score = document.querySelector('.first').nextElementSibling;
@@ -81,8 +101,9 @@ const GameBoard = (() =>{
                 el.textContent = currPlayer.char;
                 el.style.color = currPlayer.color;
                 currPlayer.moves.push(index);
-                const checkWinObj = checkWin(currPlayer.char);
+                let checkWinObj = checkWin(currPlayer.char);
                 if (checkWinObj.win){
+                    games++;
                     header.textContent = `${currPlayer.name} wins!`;
                     currPlayer.score++;
                     if(currPlayer.name === 'Player 1'){
@@ -94,11 +115,24 @@ const GameBoard = (() =>{
                         const currSpace = document.querySelector(`[data-index='${pos}']`);
                         currSpace.style.color = '#22c55e';
                     }
+                    checkWinObj = checkGameWinner();
+                    if(checkWinObj !== null){
+                        modal.style.display = 'block';
+                        modalText.textContent =  `Congratulations ${checkWinObj.name}!! You Won!!`;
+                    }else{
+                        setTimeout(resetBoard, 3000);
+                        startGame(5000); 
+                    }                    
                 }else{
                     if(turns >= 9){
+                        games++;
+                        player1.score++;
+                        player2.score++;
                         player1Score.textContent = parseInt(player1Score.textContent) + 1;
                         player2Score.textContent = parseInt(player2Score.textContent) + 1;
                         header.textContent = `It's a Tie!`;
+                        setTimeout(resetBoard, 3000);
+                        startGame(5000);
                     }else{
                         if(currPlayer === player1)
                             currPlayer = player2;
@@ -108,11 +142,11 @@ const GameBoard = (() =>{
                     }
                     
                 }
-                
             }          
             else{
                 header.textContent = `You cannot play here`;
-            }            
+            }
+            console.log(board);            
         })
     })
 
