@@ -1,7 +1,12 @@
+//get modal
+const modal = document.querySelector('.modal');
+
 const displayController = (()=>{
     //get buttons
     const playPvPButton =  document.querySelector('.PvP');
     const playAIButton = document.querySelector('.AI');
+    const mainMenuButton = document.querySelector('.main-menu');
+    const restartButton = document.querySelector('.restart')
 
     //get containers
     const menuC = document.querySelector('.menu-container');
@@ -10,13 +15,25 @@ const displayController = (()=>{
     playPvPButton.addEventListener('click', function(e){
         menuC.style.display = 'none';
         gameC.style.display = 'flex';
+        GameBoard.initialize();
+        GameBoard.startGame(2000);
+    });
+
+    mainMenuButton.addEventListener('click', function(){
+        modal.style.display = 'none';
+        menuC.style.display  = 'flex';
+        gameC.style.display = 'none';
+    });
+
+    restartButton.addEventListener('click', function(){
+        modal.style.display = 'none';
+        GameBoard.resetBoard(`Let's Play`);
+        GameBoard.initialize();
         GameBoard.startGame(2000);
     });
 })();
 
 const GameBoard = (() =>{
-    //get modal
-    const modal = document.querySelector('.modal');
     const modalText = document.querySelector('.modal-text');
 
     //get board
@@ -39,9 +56,20 @@ const GameBoard = (() =>{
         [3,4,5], [6,7,8]
     ];
 
-    let board = Array(9).fill('');
-    let turns = 0;
-    let games = 0;
+    let board;
+    let turns;
+    let games;
+
+    const initialize = () =>{
+        board = Array(9).fill('');
+        turns = 0;
+        games = 0;
+        player1.score = 0;
+        player2.score = 0;
+        player1Score.textContent = '0';
+        player2Score.textContent = '0';
+        resetBoard();
+    }
 
     const startGame = (time) =>{
         const coinFlip = Math.floor(Math.random() * 2);
@@ -76,7 +104,6 @@ const GameBoard = (() =>{
         header.textContent = headerMessage;
         turns = 0;
         board = Array(9).fill('');
-        console.log(board);
     }
 
     const checkGameWinner = () =>{
@@ -126,13 +153,15 @@ const GameBoard = (() =>{
                 }else{
                     if(turns >= 9){
                         games++;
-                        player1.score++;
-                        player2.score++;
-                        player1Score.textContent = parseInt(player1Score.textContent) + 1;
-                        player2Score.textContent = parseInt(player2Score.textContent) + 1;
                         header.textContent = `It's a Tie!`;
-                        setTimeout(resetBoard, 3000);
-                        startGame(5000);
+                        let checkWinObj = checkGameWinner();
+                        if(checkWinObj !== null){
+                            modal.style.display = 'block';
+                            modalText.textContent =  `Congratulations ${checkWinObj.name}!! You Won!!`;
+                        }else{
+                            setTimeout(resetBoard, 3000);
+                            startGame(5000); 
+                        }
                     }else{
                         if(currPlayer === player1)
                             currPlayer = player2;
@@ -145,10 +174,9 @@ const GameBoard = (() =>{
             }          
             else{
                 header.textContent = `You cannot play here`;
-            }
-            console.log(board);            
+            }           
         })
     })
 
-    return {startGame};
+    return {startGame, resetBoard, initialize};
 })();
